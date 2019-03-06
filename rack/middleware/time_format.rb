@@ -16,7 +16,6 @@ class TimeFormat
   end
 
   def call(env)
-    @app.call(env)
     query_check(Rack::Request.new(env).params)
   end
 
