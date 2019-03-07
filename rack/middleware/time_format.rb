@@ -16,18 +16,15 @@ class TimeFormat
   end
 
   def call(env)
-    query_check(Rack::Request.new(env).params)
-  end
-
-  def query_check(params)
     @invalid_formats = []
-
+    params = Rack::Request.new(env).params
     formats = params["format"].split(",")
     return not_found unless params.has_key?("format")
 
-    body = time_check(formats)
+    @body = [time_check(formats)]
+    @status = OK_STATUS
     return format_error unless @invalid_formats.empty?
-    [OK_STATUS, headers, [body]]
+    [@status, headers, @body]
   end
 
   def time_check(formats)
@@ -39,15 +36,15 @@ class TimeFormat
   end
 
   def format_error
-    body = ["Unknown time format: #{@invalid_formats}\n"]
-    status = 400
-    [status, headers, body]
+    @body = ["Unknown time format: #{@invalid_formats}\n"]
+    @status = 400
+    [@status, headers, @body]
   end
 
   def not_found
-    status = 404
-    body = ["Not Found\n"]
-    [status, headers, body]
+    @status = 404
+    @body = ["Not Found\n"]
+    [@status, headers, @body]
   end
 
   def headers
